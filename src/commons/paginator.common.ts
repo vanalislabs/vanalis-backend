@@ -1,0 +1,63 @@
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
+export type PaginateOptions = {
+  page?: number | string;
+  perPage?: number | string;
+};
+export type PaginateFunction = <T, K>(
+  model: any,
+  args?: K,
+  options?: PaginateOptions,
+  transformer?: (data: any) => Promise<T[]>,
+) => Promise<PaginatedResult<T>>;
+
+export const paginator = (
+  defaultOptions: PaginateOptions,
+): PaginateFunction => {
+  return async (
+    model,
+    args: any = { where: undefined },
+    options,
+    transformer,
+  ) => {
+    const page = Number(options?.page || defaultOptions?.page) || 1;
+    const perPage = Number(options?.perPage || defaultOptions?.perPage) || 10;
+
+    const skip = page > 0 ? perPage * (page - 1) : 0;
+    const getData = await Promise.all([
+      model.count({ where: args.where }),
+      model.findMany({
+        ...args,
+        take: perPage,
+        skip,
+      }),
+    ]);
+    const total: number = getData[0];
+    let data: any = getData[1];
+    const totalPages = Math.ceil(total / perPage);
+
+    if (transformer) {
+      data = await transformer(data);
+    }
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        perPage,
+        totalPages,
+      },
+    };
+  };
+};
