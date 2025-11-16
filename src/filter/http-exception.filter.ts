@@ -13,7 +13,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    let exceptionResponse = undefined;
+    let exceptionResponse: any = undefined;
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | null = null;

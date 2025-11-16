@@ -116,6 +116,3 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 bun.lockb
 package-lock.json
 pnpm-lock.yaml
-
-# Prisma
-/generated/prisma
