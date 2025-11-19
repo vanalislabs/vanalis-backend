@@ -1,0 +1,1 @@
+export const AUTH_LOGIN_TEXT_TO_SIGN = 'Sign this message to sign in';
