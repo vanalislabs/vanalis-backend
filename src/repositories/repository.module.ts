@@ -1,5 +1,7 @@
 import { Global, Module } from '@nestjs/common';
-const providers = [];
+import { UserRepository } from './user.repository';
+
+const providers = [UserRepository];
 
 @Global()
 @Module({

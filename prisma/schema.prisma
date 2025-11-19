@@ -12,3 +12,32 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  address           String             @id @unique
+  username          String?            @unique @map("username")
+  email             String?            @unique @map("email")
+  bio               String?            @map("bio")
+  avatarUrl         String?            @map("avatar_url")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  deletedAt         DateTime?          @map("deleted_at")
+  userRefreshTokens UserRefreshToken[]
+
+  @@index(address)
+  @@map("users")
+}
+
+model UserRefreshToken {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token       String   @unique
+  userAddress String   @map("user_address")
+  createdAt   DateTime @default(now())
+  expiredAt   DateTime
+
+  user User @relation(fields: [userAddress], references: [address])
+
+  @@index(userAddress)
+  @@index(expiredAt)
+  @@map("user_refresh_tokens")
+}
