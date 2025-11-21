@@ -8,6 +8,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './app/auth/auth.module';
 import { RepositoryModule } from './repositories/repository.module';
 import { IndexerModule } from './app/indexer/indexer.module';
+import { KeypairModule } from './app/keypair/keypair.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { IndexerModule } from './app/indexer/indexer.module';
     }),
     RepositoryModule,
     AuthModule,
+    KeypairModule,
     IndexerModule,
   ],
   controllers: [AppController],

@@ -77,7 +77,7 @@ enum ProjectStatus {
 }
 
 model Project {
-  id                     String
+  id                     String        @id
   network                String
   curator                String
   title                  String
@@ -92,8 +92,10 @@ model Project {
   submissionsCount       BigInt        @map("submissions_count")
   approvedCount          BigInt        @map("approved_count")
   rejectedCount          BigInt        @map("rejected_count")
-  createdAt              BigInt        @map("created_at")
-  deadline               BigInt        @map("deadline")
+  createdAt              BigInt?       @map("created_at")
+  deadline               BigInt?       @map("deadline")
+
+  submissions Submission[]
 
   @@unique([id, network])
   @@map("projects")
@@ -112,27 +114,31 @@ model Submission {
   contributor          String
   status               SubmissionStatus
   rewardPaid           BigInt           @map("reward_paid")
-  fullDatasetPublicKey String           @map("full_dataset_public_key")
-  submittedAt          BigInt           @map("submitted_at")
-  reviewedAt           BigInt           @map("reviewed_at")
+  fullDatasetPublicKey Bytes            @map("full_dataset_public_key")
+  submittedAt          BigInt?          @map("submitted_at")
+  reviewedAt           BigInt?          @map("reviewed_at")
+
+  project Project? @relation(fields: [projectId], references: [id])
 
   @@unique([id, network])
   @@map("submissions")
 }
 
-model AesKeypair {
+model CryptoKeypair {
   creator    String
-  publicKey  String @map("public_key")
-  privateKey String @map("private_key")
+  publicKey  Bytes    @map("public_key")
+  privateKey Bytes    @map("private_key")
+  keyType    String   @map("key_type")
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  @@unique([creator, publicKey, privateKey])
-  @@map("aes_keypairs")
+  @@unique([creator, publicKey])
+  @@map("crypto_keypairs")
 }
 
-model AccountAccessAesKeypair {
+model AccountAccessCryptoKeypair {
   address   String
-  publicKey String @map("public_key")
+  publicKey Bytes  @map("public_key")
 
   @@unique([address, publicKey])
-  @@map("account_access_aes_keypairs")
+  @@map("account_access_crypto_keypairs")
 }

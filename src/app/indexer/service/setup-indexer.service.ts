@@ -25,18 +25,31 @@ export class SetupIndexerService {
     this.eventsToTrack.push({
       type: `${PACKAGE_ID}::project::ProjectCreatedEvent`,
       filter: {
-        MoveEventModule: {
-          module: 'project',
-          package: PACKAGE_ID || '',
-        },
+        MoveEventType: `${PACKAGE_ID}::project::ProjectCreatedEvent`,
       },
       callback: this.projectIndexerService.handleProjectCreatedEvent.bind(this.projectIndexerService),
+    });
+
+    this.eventsToTrack.push({
+      type: `${PACKAGE_ID}::project::SubmissionReceivedEvent`,
+      filter: {
+        MoveEventType: `${PACKAGE_ID}::project::SubmissionReceivedEvent`,
+      },
+      callback: this.projectIndexerService.handleSubmissionReceivedEvent.bind(this.projectIndexerService),
+    });
+
+    this.eventsToTrack.push({
+      type: `${PACKAGE_ID}::project::SubmissionReviewedEvent`,
+      filter: {
+        MoveEventType: `${PACKAGE_ID}::project::SubmissionReviewedEvent`,
+      },
+      callback: this.projectIndexerService.handleSubmissionReviewedEvent.bind(this.projectIndexerService),
     });
   }
 
   async onModuleInit() {
     for (const event of this.eventsToTrack) {
-      this.runEventJob(this.client, event, null);
+      this.runEventJob(this.client, event, await this.getLatestCursor(event));
     }
   }
 

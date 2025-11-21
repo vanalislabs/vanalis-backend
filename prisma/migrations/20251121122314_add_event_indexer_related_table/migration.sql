@@ -21,8 +21,10 @@ CREATE TABLE "projects" (
     "submissions_count" BIGINT NOT NULL,
     "approved_count" BIGINT NOT NULL,
     "rejected_count" BIGINT NOT NULL,
-    "created_at" BIGINT NOT NULL,
-    "deadline" BIGINT NOT NULL
+    "created_at" BIGINT,
+    "deadline" BIGINT,
+
+    CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -33,24 +35,26 @@ CREATE TABLE "submissions" (
     "contributor" TEXT NOT NULL,
     "status" "SubmissionStatus" NOT NULL,
     "reward_paid" BIGINT NOT NULL,
-    "full_dataset_public_key" TEXT NOT NULL,
-    "submitted_at" BIGINT NOT NULL,
-    "reviewed_at" BIGINT NOT NULL,
+    "full_dataset_public_key" BYTEA NOT NULL,
+    "submitted_at" BIGINT,
+    "reviewed_at" BIGINT,
 
     CONSTRAINT "submissions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "aes_keypairs" (
+CREATE TABLE "crypto_keypairs" (
     "creator" TEXT NOT NULL,
-    "public_key" TEXT NOT NULL,
-    "private_key" TEXT NOT NULL
+    "public_key" BYTEA NOT NULL,
+    "private_key" BYTEA NOT NULL,
+    "key_type" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- CreateTable
-CREATE TABLE "account_access_aes_keypairs" (
+CREATE TABLE "account_access_crypto_keypairs" (
     "address" TEXT NOT NULL,
-    "public_key" TEXT NOT NULL
+    "public_key" BYTEA NOT NULL
 );
 
 -- CreateIndex
@@ -60,7 +64,10 @@ CREATE UNIQUE INDEX "projects_id_network_key" ON "projects"("id", "network");
 CREATE UNIQUE INDEX "submissions_id_network_key" ON "submissions"("id", "network");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "aes_keypairs_creator_public_key_private_key_key" ON "aes_keypairs"("creator", "public_key", "private_key");
+CREATE UNIQUE INDEX "crypto_keypairs_creator_public_key_key" ON "crypto_keypairs"("creator", "public_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "account_access_aes_keypairs_address_public_key_key" ON "account_access_aes_keypairs"("address", "public_key");
+CREATE UNIQUE INDEX "account_access_crypto_keypairs_address_public_key_key" ON "account_access_crypto_keypairs"("address", "public_key");
+
+-- AddForeignKey
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -5,6 +5,7 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "src/shared/config/config.service";
 import { AuthTokenService } from "./auth-token.service";
 import { UserRepository } from "src/repositories/user.repository";
+import { featureFlag } from "src/commons/feature-flag.common";
 
 @Injectable()
 export class AuthService {
@@ -18,23 +19,32 @@ export class AuthService {
   async login(body: LoginBodyDto) {
     let valid = true;
     let data: any = null;
-    try {
-      data = await this.jwtService.verifyAsync(body.jwtSignature, {
-        secret: this.config.jwt.secret,
-      })
-    } catch (error) {
-      valid = false;
-    }
 
-    if (valid && data?.address && data?.signature) {
-      const address = data.address;
-      const signature = data.signature;
-      const message = new TextEncoder().encode('Sign this message to sign in');
-      valid = await this.validateSignature(message, signature, address);
-    }
+    const bypassAuth = featureFlag('BYPASS_AUTH');
 
-    if (!valid) {
-      throw new BadRequestException('Invalid signature');
+    if (!bypassAuth) {
+      try {
+        data = await this.jwtService.verifyAsync(body.jwtSignature, {
+          secret: this.config.jwt.secret,
+        })
+      } catch (error) {
+        valid = false;
+      }
+
+      if (valid && data?.address && data?.signature) {
+        const address = data.address;
+        const signature = data.signature;
+        const message = new TextEncoder().encode('Sign this message to sign in');
+        valid = await this.validateSignature(message, signature, address);
+      }
+
+      if (!valid) {
+        throw new BadRequestException('Invalid signature');
+      }
+    } else {
+      data = {
+        address: process.env.BYPASS_AUTH_ADDRESS,
+      };
     }
 
     const user = await this.userRepository.getOrCreateUserByAddress(data.address);
