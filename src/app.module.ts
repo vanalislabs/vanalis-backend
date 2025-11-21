@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './app/auth/auth.module';
 import { RepositoryModule } from './repositories/repository.module';
+import { IndexerModule } from './app/indexer/indexer.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RepositoryModule } from './repositories/repository.module';
     }),
     RepositoryModule,
     AuthModule,
+    IndexerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

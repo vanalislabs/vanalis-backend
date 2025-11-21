@@ -8,7 +8,7 @@ import { RefreshTokenBodyDto } from "../dto/refresh-token-body.dto";
 import { AuthTokenService } from "../service/auth-token.service";
 import { AuthGuard } from "src/guards/auth.guard";
 import { GetUser } from "src/decorators/get-user/get-user.decorator";
-import { type User } from "@prisma/client";
+import { type User } from "../../../../prisma/generated/client";
 import { AUTH_LOGIN_TEXT_TO_SIGN } from "src/constants/auth.constants";
 
 @ApiTags('Auth')
