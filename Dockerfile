@@ -13,6 +13,9 @@ RUN apk add curl bash --no-cache && \
 
 FROM base AS dev
 
+# Dummy database env
+ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/vanalis
+
 # You MUST specify files/directories you don't want on your final image like .env file, dist, etc. The file .dockerignore at this folder is a good starting point.
 COPY . .
 RUN ls -l
