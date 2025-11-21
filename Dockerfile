@@ -13,6 +13,9 @@ RUN apk add curl bash --no-cache && \
 
 FROM base AS dev
 
+# Dummy database env
+ENV DATABASE_URL=postgresql://postgres:postgres@localhost:5432/vanalis
+
 # You MUST specify files/directories you don't want on your final image like .env file, dist, etc. The file .dockerignore at this folder is a good starting point.
 COPY . .
 RUN ls -l
@@ -21,7 +24,7 @@ RUN ls -l
 RUN yarn
 
 # generate prisma client
-# RUN npx prisma generate
+RUN npx prisma generate
 
 # lint and formatting configs are commented out
 # uncomment if you want to add them into the build process
@@ -44,4 +47,4 @@ COPY --from=base /app/node_modules/ ./node_modules/
 # expose application port 
 EXPOSE 4000
 # start
-CMD ["sh", "-c", "npx prisma generate && node dist/main.js"]
+CMD ["sh", "-c", "node dist/main.js"]
