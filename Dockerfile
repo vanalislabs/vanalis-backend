@@ -47,4 +47,4 @@ COPY --from=base /app/node_modules/ ./node_modules/
 # expose application port 
 EXPOSE 4000
 # start
-CMD ["sh", "-c", "node dist/main.js"]
+CMD ["sh", "-c", "node dist/src/main.js"]
