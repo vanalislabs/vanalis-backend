@@ -1,5 +1,5 @@
 import { UnauthorizedException } from '@nestjs/common';
-import ms = require('ms');
+import ms from 'ms';
 import { ConfigService } from 'src/shared/config/config.service';
 
 const config = new ConfigService();

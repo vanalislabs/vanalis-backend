@@ -5,12 +5,13 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client"
+  output     = "./generated"
+  engineType = "client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -21,7 +22,6 @@ model User {
   avatarUrl         String?            @map("avatar_url")
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
-  deletedAt         DateTime?          @map("deleted_at")
   userRefreshTokens UserRefreshToken[]
 
   @@index(address)
@@ -40,4 +40,105 @@ model UserRefreshToken {
   @@index(userAddress)
   @@index(expiredAt)
   @@map("user_refresh_tokens")
+}
+
+model CursorEvent {
+  type     String
+  network  String
+  eventSeq String @map("event_seq")
+  txDigest String @map("tx_digest")
+
+  @@unique([type, network])
+  @@map("cursor_events")
+}
+
+model EventLog {
+  id                String
+  network           String
+  packageId         String @map("package_id")
+  transactionModule String @map("transaction_module")
+  sender            String
+  type              String
+  parsedJson        Json   @map("parsed_json")
+  bcsEncoding       String @map("bcs_encoding")
+  bcs               String @map("bcs")
+  timestampMs       BigInt @map("timestamp_ms")
+  rawData           Json   @map("raw_data")
+
+  @@unique([id, network])
+  @@map("event_logs")
+}
+
+enum ProjectStatus {
+  DRAFT
+  OPEN
+  COMPLETED
+  PUBLISHED
+}
+
+model Project {
+  id                     String        @id
+  network                String
+  curator                String
+  title                  String
+  description            String
+  submissionRequirements String[]      @map("submission_requirements")
+  dataType               String        @map("data_type")
+  category               String        @map("category")
+  imageUrl               String        @map("image_url")
+  rewardPool             BigInt        @map("reward_pool")
+  targetSubmissions      BigInt        @map("target_submissions")
+  status                 ProjectStatus @map("status")
+  submissionsCount       BigInt        @map("submissions_count")
+  approvedCount          BigInt        @map("approved_count")
+  rejectedCount          BigInt        @map("rejected_count")
+  createdAt              BigInt?       @map("created_at")
+  deadline               BigInt?       @map("deadline")
+
+  submissions Submission[]
+
+  @@unique([id, network])
+  @@map("projects")
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Submission {
+  id                   String           @id
+  network              String
+  projectId            String           @map("project_id")
+  contributor          String
+  status               SubmissionStatus
+  rewardPaid           BigInt           @map("reward_paid")
+  fullDatasetPublicKey Bytes            @map("full_dataset_public_key")
+  submittedAt          BigInt?          @map("submitted_at")
+  reviewedAt           BigInt?          @map("reviewed_at")
+
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@unique([id, network])
+  @@map("submissions")
+}
+
+model CryptoKeypair {
+  creator    String
+  publicKey  Bytes    @map("public_key")
+  privateKey Bytes    @map("private_key")
+  keyType    String   @map("key_type")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([creator, publicKey])
+  @@map("crypto_keypairs")
+}
+
+model AccountAccessCryptoKeypair {
+  address   String
+  publicKey Bytes  @map("public_key")
+
+  @@unique([address, publicKey])
+  @@map("account_access_crypto_keypairs")
 }

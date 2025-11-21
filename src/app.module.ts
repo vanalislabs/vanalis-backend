@@ -7,6 +7,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './app/auth/auth.module';
 import { RepositoryModule } from './repositories/repository.module';
+import { IndexerModule } from './app/indexer/indexer.module';
+import { KeypairModule } from './app/keypair/keypair.module';
+import { ProjectModule } from './app/project/project.module';
 
 @Module({
   imports: [
@@ -33,6 +36,9 @@ import { RepositoryModule } from './repositories/repository.module';
     }),
     RepositoryModule,
     AuthModule,
+    KeypairModule,
+    ProjectModule,
+    IndexerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -15,7 +15,7 @@ if (!file) {
 
 // Define seeder file here sequentially
 const seeders: string[] = [
-  // 'example_seed.ts',
+  'keypair_dummy_seeder.ts',
 ];
 
 async function runSingleFile() {
