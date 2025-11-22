@@ -44,4 +44,14 @@ export class ConfigService {
       pollingInterval: this.getNumber('INDEXER_POLLING_INTERVAL') || 1000,
     }
   }
+
+  get s3() {
+    return {
+      endpoint: this.get('S3_ENDPOINT'),
+      accessKeyId: this.get('S3_ACCESS_KEY'),
+      secretAccessKey: this.get('S3_SECRET_KEY'),
+      region: this.get('S3_REGION'),
+      bucketName: this.get('S3_BUCKET_NAME'),
+    };
+  }
 }

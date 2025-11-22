@@ -10,6 +10,8 @@ import { RepositoryModule } from './repositories/repository.module';
 import { IndexerModule } from './app/indexer/indexer.module';
 import { KeypairModule } from './app/keypair/keypair.module';
 import { ProjectModule } from './app/project/project.module';
+import { UploadModule } from './app/upload/upload.module';
+import { StorageModule } from './app/storage/storage.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { ProjectModule } from './app/project/project.module';
     AuthModule,
     KeypairModule,
     ProjectModule,
+    UploadModule,
+    StorageModule,
     IndexerModule,
   ],
   controllers: [AppController],
