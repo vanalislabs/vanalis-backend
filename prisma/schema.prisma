@@ -142,3 +142,17 @@ model AccountAccessCryptoKeypair {
   @@unique([address, publicKey])
   @@map("account_access_crypto_keypairs")
 }
+
+model MediaFile {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  mimeType    String
+  extension   String
+  filePathKey String   @unique @map("file_path_key")
+  publicUrl   String   @map("public_url")
+  size        Int?
+  uploader    String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("media_files")
+}
