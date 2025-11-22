@@ -82,18 +82,7 @@ export class ProjectIndexerService {
   async handleSingleSubmissionReceivedEvent(event: SuiEvent) {
     const parsedJson = event.parsedJson as any;
 
-    const project = await this.prisma.project.findUnique({
-      where: {
-        id_network: {
-          id: parsedJson.project_id,
-          network: NETWORK?.env || '',
-        },
-      },
-    });
-
-    if (!project) {
-      await this.retrieveAndSaveProject(parsedJson.project_id);
-    }
+    await this.retrieveAndSaveProject(parsedJson.project_id);
 
     const data = {
       projectId: parsedJson.project_id,
@@ -137,18 +126,7 @@ export class ProjectIndexerService {
   async handleSingleSubmissionReviewedEvent(event: SuiEvent) {
     const parsedJson = event.parsedJson as any;
 
-    const project = await this.prisma.project.findUnique({
-      where: {
-        id_network: {
-          id: parsedJson.project_id,
-          network: NETWORK?.env || '',
-        },
-      },
-    });
-
-    if (!project) {
-      await this.retrieveAndSaveProject(parsedJson.project_id);
-    }
+    await this.retrieveAndSaveProject(parsedJson.project_id);
 
     const submission = await this.client.getObject({
       id: parsedJson.submission_id,
