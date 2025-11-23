@@ -16,27 +16,25 @@ export class KeypairService {
     await this.prisma.cryptoKeypair.create({
       data: {
         creator: user.address,
-        publicKey: keypair.publicKey,
-        privateKey: keypair.privateKey,
+        publicKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
+        privateKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
         keyType: keypair.keyType,
       },
     });
 
     return {
       publicKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
-      privateKey: Buffer.from(keypair?.privateKey as Uint8Array).toString('hex'),
+      privateKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
       keyType: keypair?.keyType,
     };
   }
 
   async retrieveKeypair(query: RetrieveKeypairQueryDto, user: User) {
-    const bytesPublicKey = Uint8Array.from(Buffer.from(query.publicKey, 'hex'));
-
     let keypair = await this.prisma.cryptoKeypair.findUnique({
       where: {
         creator_publicKey: {
           creator: user.address,
-          publicKey: bytesPublicKey,
+          publicKey: query.publicKey,
         },
       },
     });
@@ -46,7 +44,7 @@ export class KeypairService {
         where: {
           address_publicKey: {
             address: user.address,
-            publicKey: bytesPublicKey,
+            publicKey: query.publicKey,
           },
         },
       });
@@ -54,7 +52,7 @@ export class KeypairService {
       if (haveAccess) {
         keypair = await this.prisma.cryptoKeypair.findFirst({
           where: {
-            publicKey: bytesPublicKey,
+            publicKey: query.publicKey,
           },
         });
       }
@@ -65,8 +63,8 @@ export class KeypairService {
     }
 
     return {
-      publicKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
-      privateKey: Buffer.from(keypair?.privateKey as Uint8Array).toString('hex'),
+      publicKey: keypair?.publicKey,
+      privateKey: keypair?.privateKey,
       keyType: keypair?.keyType,
     };
   }

@@ -114,7 +114,7 @@ model Submission {
   contributor          String
   status               SubmissionStatus
   rewardPaid           BigInt           @map("reward_paid")
-  fullDatasetPublicKey Bytes            @map("full_dataset_public_key")
+  fullDatasetPublicKey String           @map("full_dataset_public_key")
   submittedAt          BigInt?          @map("submitted_at")
   reviewedAt           BigInt?          @map("reviewed_at")
 
@@ -126,8 +126,8 @@ model Submission {
 
 model CryptoKeypair {
   creator    String
-  publicKey  Bytes    @map("public_key")
-  privateKey Bytes    @map("private_key")
+  publicKey  String   @map("public_key")
+  privateKey String   @map("private_key")
   keyType    String   @map("key_type")
   createdAt  DateTime @default(now()) @map("created_at")
 
@@ -137,7 +137,7 @@ model CryptoKeypair {
 
 model AccountAccessCryptoKeypair {
   address   String
-  publicKey Bytes  @map("public_key")
+  publicKey String @map("public_key")
 
   @@unique([address, publicKey])
   @@map("account_access_crypto_keypairs")

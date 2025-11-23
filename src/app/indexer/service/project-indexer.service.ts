@@ -1,6 +1,6 @@
 import { SuiClient, SuiEvent } from "@mysten/sui/client";
 import { Injectable, Logger } from "@nestjs/common";
-import { Prisma, Project, SubmissionStatus } from "prisma/generated/client";
+import { Prisma, Project, Submission, SubmissionStatus } from "prisma/generated/client";
 import { NETWORK } from "src/constants/network.constants";
 import { PROJECT_STATUS_FROM_NUMBER } from "src/constants/project.constants";
 import { IndexerRepository } from "src/repositories/indexer.repository";
@@ -84,30 +84,7 @@ export class ProjectIndexerService {
 
     await this.retrieveAndSaveProject(parsedJson.project_id);
 
-    const data = {
-      projectId: parsedJson.project_id,
-      fullDatasetPublicKey: Uint8Array.from(parsedJson.full_dataset_public_key),
-      contributor: parsedJson.contributor,
-      submittedAt: Number(parsedJson.submitted_at),
-    }
-
-    await this.prisma.submission.upsert({
-      where: {
-        id_network: {
-          id: parsedJson.submission_id,
-          network: NETWORK?.env || '',
-        },
-      },
-      update: data,
-      create: {
-        ...data,
-        id: parsedJson.submission_id,
-        network: NETWORK?.env || '',
-        rewardPaid: Number(0),
-        status: SubmissionStatus.PENDING,
-        reviewedAt: null,
-      },
-    });
+    await this.retrieveAndSaveSubmission(parsedJson.submission_id);
 
     // Save the event to the database
     await this.indexerRepository.saveEventLog(event);
@@ -128,45 +105,14 @@ export class ProjectIndexerService {
 
     const project = await this.retrieveAndSaveProject(parsedJson.project_id);
 
-    const submission = await this.client.getObject({
-      id: parsedJson.submission_id,
-      options: {
-        showContent: true,
-      },
-    });
+    const submission = await this.retrieveAndSaveSubmission(parsedJson.submission_id);
 
-    const submissionFields: any = submission?.data?.content?.dataType === 'moveObject' ? submission?.data?.content?.fields : null;
-    const updatedData = {
-      status: parsedJson.approved ? SubmissionStatus.APPROVED : SubmissionStatus.REJECTED,
-      rewardPaid: Number(parsedJson?.reward_paid),
-      reviewedAt: Number(parsedJson?.reviewed_at),
-    }
-
-    await this.prisma.submission.upsert({
-      where: {
-        id_network: {
-          id: parsedJson.submission_id,
-          network: NETWORK?.env || '',
-        },
-      },
-      update: updatedData,
-      create: {
-        ...updatedData,
-        id: parsedJson.submission_id,
-        network: NETWORK?.env || '',
-        projectId: parsedJson.project_id,
-        contributor: submissionFields?.contributor,
-        fullDatasetPublicKey: Uint8Array.from(submissionFields?.full_dataset_public_key),
-        submittedAt: Number(submissionFields?.submitted_at),
-      }
-    });
-
-    if (updatedData.status === SubmissionStatus.APPROVED) {
+    if (submission.status === SubmissionStatus.APPROVED) {
       const cryptoKeypair = await this.prisma.cryptoKeypair.findUnique({
         where: {
           creator_publicKey: {
-            creator: submissionFields?.contributor,
-            publicKey: submissionFields?.full_dataset_public_key,
+            creator: submission.contributor,
+            publicKey: submission.fullDatasetPublicKey,
           }
         },
       });
@@ -174,7 +120,7 @@ export class ProjectIndexerService {
       if (cryptoKeypair) {
         const data = {
           address: project.curator,
-          publicKey: submissionFields?.full_dataset_public_key,
+          publicKey: submission.fullDatasetPublicKey,
         }
 
         await this.prisma.accountAccessCryptoKeypair.upsert({
@@ -235,5 +181,43 @@ export class ProjectIndexerService {
     });
 
     return savedProject;
+  }
+
+  async retrieveAndSaveSubmission(submissionId: string): Promise<Submission> {
+    const submission = await this.client.getObject({
+      id: submissionId,
+      options: {
+        showContent: true,
+      },
+    });
+
+    const submissionFields: any = submission?.data?.content?.dataType === 'moveObject' ? submission?.data?.content?.fields : null;
+
+    const data = {
+      projectId: submissionFields?.project_id,
+      contributor: submissionFields?.contributor,
+      status: SubmissionStatus.PENDING,
+      rewardPaid: Number(0),
+      fullDatasetPublicKey: String(submissionFields?.full_dataset_public_key),
+      submittedAt: Number(submissionFields?.submitted_at),
+      reviewedAt: submissionFields?.reviewed_at ? Number(submissionFields?.reviewed_at) : null,
+    }
+
+    const savedSubmission = await this.prisma.submission.upsert({
+      where: {
+        id_network: {
+          id: submissionId,
+          network: NETWORK?.env || '',
+        },
+      },
+      update: data,
+      create: {
+        ...data,
+        id: submissionId,
+        network: NETWORK?.env || '',
+      },
+    });
+
+    return savedSubmission;
   }
 }
