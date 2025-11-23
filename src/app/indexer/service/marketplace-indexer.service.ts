@@ -26,6 +26,24 @@ export class MarketplaceIndexerService {
 
   private async handleSingleListingCreatedEvent(event: SuiEvent) {
     const json = event.parsedJson as any;
+    await this.retrieveAndSaveListing(json.id);
+
+    await this.indexerRepository.saveEventLog(event);
+  }
+
+  async handleDatasetPurchasedEvent(events: SuiEvent[], type: string) {
+    for (const event of events) {
+      try {
+        await this.handleSingleDatasetPurchasedEvent(event);
+      } catch (error) {
+        this.logger.error(`Error handling dataset purchased event: ${error}`);
+      }
+    }
+  }
+
+  private async handleSingleDatasetPurchasedEvent(event: SuiEvent) {
+    const json = event.parsedJson as any;
+    await this.upsertListingSaleFromEvent(json);
     await this.retrieveAndSaveListing(json.listing_id);
 
     await this.indexerRepository.saveEventLog(event);
@@ -66,4 +84,18 @@ export class MarketplaceIndexerService {
     });
   }
 
+  async upsertListingSaleFromEvent(eventData: any) {
+    const data = {
+      listingId: eventData.listing_id,
+      buyer: eventData.buyer,
+      paidAmount: BigInt(eventData.paid_amount),
+      boughtAt: BigInt(eventData.bought_at),
+    };
+
+    return this.prisma.listingSale.upsert({
+      where: { id_network: { id: eventData.sale_id, network: NETWORK?.env || '' } },
+      update: data,
+      create: { ...data, id: eventData.sale_id, network: NETWORK?.env || '' },
+    });
+  }
 }

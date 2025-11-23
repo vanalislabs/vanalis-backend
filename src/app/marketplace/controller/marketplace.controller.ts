@@ -1,5 +1,5 @@
 import { Controller, Get, Query, Param, HttpStatus, UseInterceptors, HttpCode, UseGuards } from "@nestjs/common";
-import { ApiOkResponse, ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiOkResponse, ApiTags, ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { TransformInterceptor } from "src/interceptors/transform/transform.interceptor";
 import { MarketplaceRepository } from "src/repositories/marketplace.repository";
 import { ResponseMessage } from "src/decorators/response/response-message.decorator";
@@ -7,6 +7,7 @@ import { AuthGuard } from "src/guards/auth.guard";
 import { GetUser } from "src/decorators/get-user/get-user.decorator";
 import { User } from "prisma/generated/client";
 import { ProjectService } from "src/app/project/service/project.service";
+import { BrowseMarketplaceQueryDto } from "../dto/browse-marketplace-query.dto";
 
 @ApiTags('Marketplace')
 @UseInterceptors(TransformInterceptor)
@@ -24,19 +25,9 @@ export class MarketplaceController {
   })
   @ResponseMessage("Successfully browsed marketplace listings!")
   async browseListings(
-    @Query('categoryId') categoryId?: string,
-    @Query('minPrice') minPrice?: string,
-    @Query('maxPrice') maxPrice?: string,
-    @Query('sortBy') sortBy?: 'price' | 'createdAt' | 'totalSalesCount',
-    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+    @Query() query: BrowseMarketplaceQueryDto,
   ) {
-    return this.marketplaceRepository.browseListings({
-      categoryId,
-      minPrice,
-      maxPrice,
-      sortBy,
-      sortOrder,
-    });
+    return this.marketplaceRepository.browseListings(query);
   }
 
   @Get('listings')
@@ -44,6 +35,7 @@ export class MarketplaceController {
   @ApiOkResponse({
     description: "Successfully retrieved marketplace listings!",
   })
+  @ApiQuery({ name: 'projectId', required: false, type: String })
   @ResponseMessage("Successfully retrieved marketplace listings!")
   async getListings(@Query('projectId') projectId?: string) {
     return this.marketplaceRepository.getActiveListings(projectId);
