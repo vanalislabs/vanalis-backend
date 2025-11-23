@@ -1,26 +1,26 @@
-import { Project } from "prisma/generated/client"
 import { transformSubmissionListResponse } from "./submission.transform";
 
-export const transformProjectListResponse = async (project: any[]) => {
-  return await Promise.all(project.map(async (project) => {
-    return await transformProjectResponse(project);
+export const transformProjectListResponse = async (data: any[]) => {
+  return await Promise.all(data.map(async (data) => {
+    return await transformProjectResponse(data);
   }));
 }
 
-export const transformProjectResponse = async (project: any) => {
+export const transformProjectResponse = async (data: any) => {
   return {
-    id: project.id,
-    title: project.title,
-    description: project.description,
-    imageUrl: project.imageUrl,
-    rewardPool: project.rewardPool,
-    targetSubmissions: project.targetSubmissions,
-    status: project.status,
-    submissionsCount: project.submissionsCount,
-    approvedCount: project.approvedCount,
-    rejectedCount: project.rejectedCount,
-    createdAt: project.createdAt,
-    deadline: project.deadline,
-    submissions: project?.submissions ? await transformSubmissionListResponse(project.submissions) : null,
+    id: data?.id,
+    network: data?.network,
+    title: data?.title,
+    description: data?.description,
+    imageUrl: data?.imageUrl,
+    rewardPool: data?.rewardPool,
+    targetSubmissions: data?.targetSubmissions,
+    status: data?.status,
+    submissionsCount: data?.submissionsCount,
+    approvedCount: data?.approvedCount,
+    rejectedCount: data?.rejectedCount,
+    createdAt: data?.createdAt,
+    deadline: data?.deadline,
+    submissions: data?.submissions ? await transformSubmissionListResponse(data.submissions) : null,
   }
 }

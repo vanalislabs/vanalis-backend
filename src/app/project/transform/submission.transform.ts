@@ -1,4 +1,3 @@
-import { Submission } from "prisma/generated/client";
 import { transformProjectResponse } from "./project.transform"
 
 export const transformSubmissionListResponse = async (data: any[]) => {
@@ -9,12 +8,15 @@ export const transformSubmissionListResponse = async (data: any[]) => {
 
 export const transformSubmissionResponse = async (data: any) => {
   return {
-    id: data.id,
-    projectId: data.projectId,
-    contributor: data.contributor,
-    status: data.status,
-    rewardPaid: data.rewardPaid,
-    fullDatasetPublicKey: Buffer.from(data?.fullDatasetPublicKey as Uint8Array).toString('hex'),
+    id: data?.id,
+    network: data?.network,
+    projectId: data?.projectId,
+    contributor: data?.contributor,
+    status: data?.status,
+    rewardPaid: data?.rewardPaid,
+    fullDatasetPublicKey: data?.fullDatasetPublicKey,
+    submittedAt: data?.submittedAt,
+    reviewedAt: data?.reviewedAt,
     project: data?.project ? await transformProjectResponse(data.project) : null,
   }
 }
