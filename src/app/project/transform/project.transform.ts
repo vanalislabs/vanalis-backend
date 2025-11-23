@@ -9,6 +9,6 @@ export const transformProjectListResponse = async (data: any[]) => {
 export const transformProjectResponse = async (data: any) => {
   return {
     ...data,
-    submissions: data?.submissions ? await transformSubmissionListResponse(data.submissions) : null,
+    submissions: data?.submissions ? await transformSubmissionListResponse(data.submissions) : undefined,
   }
 }
