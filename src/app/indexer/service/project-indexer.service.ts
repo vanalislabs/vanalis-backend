@@ -3,6 +3,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { Prisma, Project, Submission, SubmissionStatus } from "prisma/generated/client";
 import { NETWORK } from "src/constants/network.constants";
 import { PROJECT_STATUS_FROM_NUMBER } from "src/constants/project.constants";
+import { SUBMISSION_STATUS_FROM_NUMBER } from "src/constants/submission.constants";
 import { IndexerRepository } from "src/repositories/indexer.repository";
 import { PrismaService } from "src/shared/prisma/prisma.service";
 
@@ -167,7 +168,7 @@ export class ProjectIndexerService {
     const data = {
       projectId: submissionFields?.project_id,
       contributor: submissionFields?.contributor,
-      status: SubmissionStatus.PENDING,
+      status: SUBMISSION_STATUS_FROM_NUMBER[submissionFields?.status],
       rewardPaid: Number(0),
       fullDatasetPublicKey: String(submissionFields?.full_dataset_public_key),
       submittedAt: Number(submissionFields?.submitted_at),
