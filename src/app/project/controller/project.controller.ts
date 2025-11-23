@@ -49,6 +49,16 @@ export class ProjectController {
     return this.projectService.getProjectDetail(id);
   }
 
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: "Successfully retrieved submission detail!",
+  })
+  @ResponseMessage("Successfully retrieved submission detail!")
+  @Get('submission/:id')
+  async getSubmissionDetail(@Param('id') id: string) {
+    return this.projectService.getSubmissionDetail(id);
+  }
+
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)

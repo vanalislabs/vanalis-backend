@@ -8,6 +8,8 @@ import { BrowseProjectQueryDto } from "../dto/browse-project-query.dto";
 import { NETWORK } from "src/constants/network.constants";
 import { MyProjectQueryDto } from "../dto/my-project-query.dto";
 import { MySubmissionQueryDto } from "../dto/my-submission-query.dto";
+import { transformProjectListResponse, transformProjectResponse } from "../transform/project.transform";
+import { transformSubmissionListResponse, transformSubmissionResponse } from "../transform/submission.transform";
 
 const paginate: PaginateFunction = paginator({ perPage: 10 });
 
@@ -27,7 +29,7 @@ export class ProjectService {
       take: 3,
     });
 
-    return projects;
+    return transformProjectListResponse(projects);
   }
 
   async browseProjects(query: BrowseProjectQueryDto) {
@@ -62,6 +64,7 @@ export class ProjectService {
         page: query.page,
         perPage: query.perPage,
       },
+      transformProjectListResponse,
     );
 
     return projects;
@@ -75,13 +78,36 @@ export class ProjectService {
           network: NETWORK?.env || '',
         },
       },
+      include: {
+        submissions: true,
+      },
     });
 
     if (!project) {
       throw new NotFoundException('Project not found');
     }
 
-    return project;
+    return transformProjectResponse(project);
+  }
+
+  async getSubmissionDetail(id: string) {
+    const submission = await this.prisma.submission.findUnique({
+      where: {
+        id_network: {
+          id: id,
+          network: NETWORK?.env || '',
+        },
+      },
+      include: {
+        project: true,
+      },
+    });
+
+    if (!submission) {
+      throw new NotFoundException('Submission not found');
+    }
+
+    return transformSubmissionResponse(submission);
   }
 
   async getMyProjects(query: MyProjectQueryDto, user: User) {
@@ -114,6 +140,7 @@ export class ProjectService {
         page: query.page,
         perPage: query.perPage,
       },
+      transformProjectListResponse,
     );
 
     return projects;
@@ -164,6 +191,7 @@ export class ProjectService {
         page: query.page,
         perPage: query.perPage,
       },
+      transformSubmissionListResponse,
     );
 
     return submissions;
