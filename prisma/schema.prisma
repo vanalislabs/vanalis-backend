@@ -87,6 +87,7 @@ model Project {
   category               String        @map("category")
   imageUrl               String        @map("image_url")
   rewardPool             BigInt        @map("reward_pool")
+  totalRewardPool        BigInt        @map("total_reward_pool")
   targetSubmissions      BigInt        @map("target_submissions")
   status                 ProjectStatus @map("status")
   submissionsCount       BigInt        @map("submissions_count")

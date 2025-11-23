@@ -126,6 +126,7 @@ export class ProjectIndexerService {
       category: projectFields?.category,
       imageUrl: projectFields?.image_url,
       rewardPool: Number(projectFields?.reward_pool),
+      totalRewardPool: Number(projectFields?.total_reward_pool),
       targetSubmissions: Number(projectFields?.target_submissions),
       status: PROJECT_STATUS_FROM_NUMBER[projectFields?.status],
       submissionsCount: Number(projectFields?.submissions_count),
