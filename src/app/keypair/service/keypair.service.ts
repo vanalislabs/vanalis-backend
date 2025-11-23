@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/shared/prisma/prisma.service";
 import sodium from "libsodium-wrappers";
 import { User } from "prisma/generated/client";
@@ -60,6 +60,14 @@ export class KeypairService {
       }
     }
 
-    return keypair;
+    if (!keypair) {
+      throw new BadRequestException('Keypair not found or you do not have access to it');
+    }
+
+    return {
+      publicKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
+      privateKey: Buffer.from(keypair?.privateKey as Uint8Array).toString('hex'),
+      keyType: keypair?.keyType,
+    };
   }
 }
