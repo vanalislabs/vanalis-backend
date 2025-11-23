@@ -1,5 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { BrowseMarketplaceQueryDto } from "src/app/marketplace/dto/browse-marketplace-query.dto";
+import { PaginateFunction, paginator } from "src/commons/paginator.common";
 import { PrismaService } from "src/shared/prisma/prisma.service";
+
+const paginate: PaginateFunction = paginator({ perPage: 10 });
 
 @Injectable()
 export class MarketplaceRepository {
@@ -92,13 +96,7 @@ export class MarketplaceRepository {
     });
   }
 
-  async browseListings(filters?: {
-    categoryId?: string;
-    minPrice?: string;
-    maxPrice?: string;
-    sortBy?: 'price' | 'createdAt' | 'totalSalesCount';
-    sortOrder?: 'asc' | 'desc';
-  }) {
+  async browseListings(filters: BrowseMarketplaceQueryDto) {
     const where: any = {};
 
     if (filters?.categoryId) {
@@ -122,12 +120,19 @@ export class MarketplaceRepository {
       orderBy.createdAt = 'desc';
     }
 
-    return this.prisma.marketplaceListing.findMany({
-      where,
-      include: {
-        sales: true,
+    return paginate(
+      this.prisma.marketplaceListing,
+      {
+        where,
+        include: {
+          sales: true,
+        },
+        orderBy,
       },
-      orderBy,
-    });
+      {
+        page: filters.page,
+        perPage: filters.perPage,
+      },
+    );
   }
 }

@@ -67,6 +67,16 @@ export class SetupIndexerService {
         this.marketplaceIndexerService,
       ),
     });
+
+    this.eventsToTrack.push({
+      type: `${PACKAGE_ID}::marketplace::DatasetPurchasedEvent`,
+      filter: {
+        MoveEventType: `${PACKAGE_ID}::marketplace::DatasetPurchasedEvent`,
+      },
+      callback: this.marketplaceIndexerService.handleDatasetPurchasedEvent.bind(
+        this.marketplaceIndexerService,
+      ),
+    });
   }
 
   async onModuleInit() {
