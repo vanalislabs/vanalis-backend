@@ -1,6 +1,6 @@
 import { SuiClient, SuiEvent } from "@mysten/sui/client";
 import { Injectable, Logger } from "@nestjs/common";
-import { Prisma, SubmissionStatus } from "prisma/generated/client";
+import { Prisma, Project, SubmissionStatus } from "prisma/generated/client";
 import { NETWORK } from "src/constants/network.constants";
 import { PROJECT_STATUS_FROM_NUMBER } from "src/constants/project.constants";
 import { IndexerRepository } from "src/repositories/indexer.repository";
@@ -126,7 +126,7 @@ export class ProjectIndexerService {
   async handleSingleSubmissionReviewedEvent(event: SuiEvent) {
     const parsedJson = event.parsedJson as any;
 
-    await this.retrieveAndSaveProject(parsedJson.project_id);
+    const project = await this.retrieveAndSaveProject(parsedJson.project_id);
 
     const submission = await this.client.getObject({
       id: parsedJson.submission_id,
@@ -161,11 +161,37 @@ export class ProjectIndexerService {
       }
     });
 
+    if (updatedData.status === SubmissionStatus.APPROVED) {
+      const cryptoKeypair = await this.prisma.cryptoKeypair.findUnique({
+        where: {
+          creator_publicKey: {
+            creator: submissionFields?.contributor,
+            publicKey: submissionFields?.full_dataset_public_key,
+          }
+        },
+      });
+
+      if (cryptoKeypair) {
+        const data = {
+          address: project.curator,
+          publicKey: submissionFields?.full_dataset_public_key,
+        }
+
+        await this.prisma.accountAccessCryptoKeypair.upsert({
+          where: {
+            address_publicKey: data
+          },
+          update: {},
+          create: data,
+        })
+      }
+    }
+
     // Save the event to the database
     await this.indexerRepository.saveEventLog(event);
   }
 
-  async retrieveAndSaveProject(projectId: string) {
+  async retrieveAndSaveProject(projectId: string): Promise<Project> {
     const project = await this.client.getObject({
       id: projectId,
       options: {
@@ -193,7 +219,7 @@ export class ProjectIndexerService {
       deadline: Number(projectFields?.deadline),
     }
 
-    await this.prisma.project.upsert({
+    const savedProject = await this.prisma.project.upsert({
       where: {
         id_network: {
           id: projectId,
@@ -208,6 +234,6 @@ export class ProjectIndexerService {
       },
     });
 
-    return project;
+    return savedProject;
   }
 }

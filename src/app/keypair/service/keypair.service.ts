@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/shared/prisma/prisma.service";
 import sodium from "libsodium-wrappers";
 import { User } from "prisma/generated/client";
+import { RetrieveKeypairQueryDto } from "../dto/retrieve-keypair-query.dto";
 
 @Injectable()
 export class KeypairService {
@@ -26,5 +27,39 @@ export class KeypairService {
       privateKey: Buffer.from(keypair?.privateKey as Uint8Array).toString('hex'),
       keyType: keypair?.keyType,
     };
+  }
+
+  async retrieveKeypair(query: RetrieveKeypairQueryDto, user: User) {
+    const bytesPublicKey = Uint8Array.from(Buffer.from(query.publicKey, 'hex'));
+
+    let keypair = await this.prisma.cryptoKeypair.findUnique({
+      where: {
+        creator_publicKey: {
+          creator: user.address,
+          publicKey: bytesPublicKey,
+        },
+      },
+    });
+
+    if (!keypair) {
+      const haveAccess = await this.prisma.accountAccessCryptoKeypair.findUnique({
+        where: {
+          address_publicKey: {
+            address: user.address,
+            publicKey: bytesPublicKey,
+          },
+        },
+      });
+
+      if (haveAccess) {
+        keypair = await this.prisma.cryptoKeypair.findFirst({
+          where: {
+            publicKey: bytesPublicKey,
+          },
+        });
+      }
+    }
+
+    return keypair;
   }
 }
