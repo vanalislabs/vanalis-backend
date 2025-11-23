@@ -32,38 +32,8 @@ export class ProjectIndexerService {
 
   async handleSingleProjectCreatedEvent(event: SuiEvent) {
     const parsedJson = event.parsedJson as any;
-    const data = {
-      curator: parsedJson.curator,
-      title: parsedJson.title,
-      description: parsedJson.description,
-      submissionRequirements: parsedJson.submission_requirements,
-      dataType: parsedJson.data_type,
-      category: parsedJson.category,
-      imageUrl: parsedJson.image_url,
-      rewardPool: Number(parsedJson.reward_pool),
-      targetSubmissions: Number(parsedJson.target_submissions),
-      status: PROJECT_STATUS_FROM_NUMBER[parsedJson.status],
-      submissionsCount: Number(parsedJson.submissions_count),
-      approvedCount: Number(parsedJson.approved_count),
-      rejectedCount: Number(parsedJson.rejected_count),
-      createdAt: Number(parsedJson.created_at),
-      deadline: Number(parsedJson.deadline),
-    }
 
-    await this.prisma.project.upsert({
-      where: {
-        id_network: {
-          id: parsedJson.project_id,
-          network: NETWORK?.env || '',
-        },
-      },
-      update: data,
-      create: {
-        ...data,
-        id: parsedJson.project_id,
-        network: NETWORK?.env || '',
-      },
-    });
+    await this.retrieveAndSaveProject(parsedJson.project_id);
 
     // Save the event to the database
     await this.indexerRepository.saveEventLog(event);
