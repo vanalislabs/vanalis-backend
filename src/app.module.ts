@@ -12,6 +12,7 @@ import { KeypairModule } from './app/keypair/keypair.module';
 import { ProjectModule } from './app/project/project.module';
 import { UploadModule } from './app/upload/upload.module';
 import { StorageModule } from './app/storage/storage.module';
+import { MarketplaceModule } from './app/marketplace/marketplace.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { StorageModule } from './app/storage/storage.module';
     ProjectModule,
     UploadModule,
     StorageModule,
+    MarketplaceModule,
     IndexerModule,
   ],
   controllers: [AppController],

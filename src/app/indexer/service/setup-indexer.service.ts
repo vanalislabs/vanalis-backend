@@ -1,10 +1,15 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { NETWORK, PACKAGE_ID } from "src/constants/network.constants";
-import { PrismaService } from "src/shared/prisma/prisma.service";
-import { EventExecutionResult, EventTracker, SuiEventsCursor } from "../types/indexer.type";
-import { ProjectIndexerService } from "./project-indexer.service";
-import { ConfigService } from "src/shared/config/config.service";
-import { type EventId, SuiClient } from "@mysten/sui/client";
+import { MarketplaceIndexerService } from './marketplace-indexer.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { NETWORK, PACKAGE_ID } from 'src/constants/network.constants';
+import { PrismaService } from 'src/shared/prisma/prisma.service';
+import {
+  EventExecutionResult,
+  EventTracker,
+  SuiEventsCursor,
+} from '../types/indexer.type';
+import { ProjectIndexerService } from './project-indexer.service';
+import { ConfigService } from 'src/shared/config/config.service';
+import { type EventId, SuiClient } from '@mysten/sui/client';
 
 @Injectable()
 export class SetupIndexerService {
@@ -17,6 +22,7 @@ export class SetupIndexerService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly projectIndexerService: ProjectIndexerService,
+    private readonly marketplaceIndexerService: MarketplaceIndexerService,
   ) {
     this.client = new SuiClient({
       url: NETWORK?.rpcUrl || '',
@@ -27,7 +33,9 @@ export class SetupIndexerService {
       filter: {
         MoveEventType: `${PACKAGE_ID}::project::ProjectCreatedEvent`,
       },
-      callback: this.projectIndexerService.handleProjectCreatedEvent.bind(this.projectIndexerService),
+      callback: this.projectIndexerService.handleProjectCreatedEvent.bind(
+        this.projectIndexerService,
+      ),
     });
 
     this.eventsToTrack.push({
@@ -35,7 +43,9 @@ export class SetupIndexerService {
       filter: {
         MoveEventType: `${PACKAGE_ID}::project::SubmissionReceivedEvent`,
       },
-      callback: this.projectIndexerService.handleSubmissionReceivedEvent.bind(this.projectIndexerService),
+      callback: this.projectIndexerService.handleSubmissionReceivedEvent.bind(
+        this.projectIndexerService,
+      ),
     });
 
     this.eventsToTrack.push({
@@ -43,7 +53,19 @@ export class SetupIndexerService {
       filter: {
         MoveEventType: `${PACKAGE_ID}::project::SubmissionReviewedEvent`,
       },
-      callback: this.projectIndexerService.handleSubmissionReviewedEvent.bind(this.projectIndexerService),
+      callback: this.projectIndexerService.handleSubmissionReviewedEvent.bind(
+        this.projectIndexerService,
+      ),
+    });
+
+    this.eventsToTrack.push({
+      type: `${PACKAGE_ID}::marketplace::ListingCreatedEvent`,
+      filter: {
+        MoveEventType: `${PACKAGE_ID}::marketplace::ListingCreatedEvent`,
+      },
+      callback: this.marketplaceIndexerService.handleListingCreatedEvent.bind(
+        this.marketplaceIndexerService,
+      ),
     });
   }
 
@@ -53,7 +75,11 @@ export class SetupIndexerService {
     }
   }
 
-  async runEventJob(client: SuiClient, tracker: EventTracker, cursor: SuiEventsCursor) {
+  async runEventJob(
+    client: SuiClient,
+    tracker: EventTracker,
+    cursor: SuiEventsCursor,
+  ) {
     const result = await this.executeEventJob(client, tracker, cursor);
 
     setTimeout(
@@ -62,7 +88,7 @@ export class SetupIndexerService {
       },
       result.hasNextPage ? 0 : this.config.indexer.pollingInterval,
     );
-  };
+  }
 
   async executeEventJob(
     client: SuiClient,
@@ -94,7 +120,7 @@ export class SetupIndexerService {
       cursor,
       hasNextPage: false,
     };
-  };
+  }
 
   async getLatestCursor(tracker: EventTracker) {
     const cursor = await this.prisma.cursorEvent.findUnique({
@@ -107,7 +133,7 @@ export class SetupIndexerService {
     });
 
     return cursor || undefined;
-  };
+  }
 
   async saveLatestCursor(tracker: EventTracker, cursor: EventId) {
     const data = {
@@ -126,8 +152,8 @@ export class SetupIndexerService {
       create: {
         type: tracker.type,
         network: NETWORK?.env || '',
-        ...data
+        ...data,
       },
     });
-  };
+  }
 }

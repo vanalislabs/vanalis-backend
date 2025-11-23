@@ -102,6 +102,52 @@ model Project {
   @@map("projects")
 }
 
+enum MarketplaceStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+  EXPIRED
+}
+
+model MarketplaceListing {
+  id                         String  @id
+  network                    String
+  projectId                  String  @map("project_id")
+  price                      BigInt
+  datasetCollectionBlobId    String  @map("dataset_collection_blob_id")
+  datasetCollectionPublicKey String  @map("dataset_collection_public_key")
+  lastSaleEpochTimestamp     BigInt  @map("last_sale_epoch_timestamp")
+  totalSalesAmount           BigInt  @map("total_sales_amount")
+  totalSalesCount            BigInt  @map("total_sales_count")
+  curator                    String
+  createdAt                  BigInt? @map("created_at")
+  updatedAt                  BigInt? @map("updated_at")
+
+  sales ListingSale[]
+
+  @@unique([id, network])
+  @@map("marketplace_listings")
+}
+
+model ListingSale {
+  id         String              @id
+  network    String
+  listingId  String              @map("listing_id")
+  buyer      String
+  paidAmount BigInt              @map("paid_amount")
+  boughtAt   BigInt              @map("bought_at")
+  listing    MarketplaceListing? @relation(fields: [listingId], references: [id])
+
+  @@unique([id, network])
+  @@map("listing_sales")
+}
+
 enum SubmissionStatus {
   PENDING
   APPROVED
