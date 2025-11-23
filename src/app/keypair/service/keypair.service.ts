@@ -17,14 +17,14 @@ export class KeypairService {
       data: {
         creator: user.address,
         publicKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
-        privateKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
+        privateKey: Buffer.from(keypair?.privateKey as Uint8Array).toString('hex'),
         keyType: keypair.keyType,
       },
     });
 
     return {
       publicKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
-      privateKey: Buffer.from(keypair?.publicKey as Uint8Array).toString('hex'),
+      privateKey: Buffer.from(keypair?.privateKey as Uint8Array).toString('hex'),
       keyType: keypair?.keyType,
     };
   }
