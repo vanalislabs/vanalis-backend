@@ -153,12 +153,7 @@ export class ProjectService {
         contributor: user.address,
       },
       include: {
-        project: {
-          select: {
-            id: true,
-            title: true,
-          }
-        },
+        project: true,
       },
       omit: {
         fullDatasetPublicKey: true,
