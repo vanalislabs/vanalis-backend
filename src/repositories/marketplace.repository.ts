@@ -7,13 +7,10 @@ const paginate: PaginateFunction = paginator({ perPage: 10 });
 
 @Injectable()
 export class MarketplaceRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async getActiveListings(projectId?: string) {
+  async getActiveListings() {
     return this.prisma.marketplaceListing.findMany({
-      where: {
-        ...(projectId && { projectId }),
-      },
       include: {
         sales: true,
       },
@@ -99,8 +96,10 @@ export class MarketplaceRepository {
   async browseListings(filters: BrowseMarketplaceQueryDto) {
     const where: any = {};
 
-    if (filters?.categoryId) {
-      // TODO: Add category filtering
+    if (filters?.category) {
+      where.project = {
+        category: filters.category,
+      };
     }
 
     if (filters?.minPrice || filters?.maxPrice) {

@@ -5,8 +5,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthModule } from './app/auth/auth.module';
 import { RepositoryModule } from './repositories/repository.module';
+import { AuthModule } from './app/auth/auth.module';
+import { SearchModule } from './app/search/search.module';
 import { IndexerModule } from './app/indexer/indexer.module';
 import { KeypairModule } from './app/keypair/keypair.module';
 import { ProjectModule } from './app/project/project.module';
@@ -39,6 +40,7 @@ import { MarketplaceModule } from './app/marketplace/marketplace.module';
     }),
     RepositoryModule,
     AuthModule,
+    SearchModule,
     KeypairModule,
     ProjectModule,
     UploadModule,
