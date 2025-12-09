@@ -6,7 +6,7 @@ export class BrowseMarketplaceQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  categoryId?: string;
+  category?: string;
 
   @ApiPropertyOptional({
     description: 'Minimum price (in base units)',

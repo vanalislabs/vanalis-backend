@@ -5,9 +5,10 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider   = "prisma-client"
-  output     = "./generated"
-  engineType = "client"
+  provider        = "prisma-client"
+  output          = "./generated"
+  engineType      = "client"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -97,6 +98,7 @@ model Project {
   deadline               BigInt?       @map("deadline")
 
   submissions Submission[]
+  listing     MarketplaceListing?
 
   @@unique([id, network])
   @@map("projects")
@@ -118,7 +120,7 @@ enum ListingStatus {
 model MarketplaceListing {
   id                         String  @id
   network                    String
-  projectId                  String  @map("project_id")
+  projectId                  String  @unique @map("project_id")
   price                      BigInt
   datasetCollectionBlobId    String  @map("dataset_collection_blob_id")
   datasetCollectionPublicKey String  @map("dataset_collection_public_key")
@@ -129,9 +131,11 @@ model MarketplaceListing {
   createdAt                  BigInt? @map("created_at")
   updatedAt                  BigInt? @map("updated_at")
 
-  sales ListingSale[]
+  sales   ListingSale[]
+  project Project?      @relation(fields: [projectId], references: [id])
 
   @@unique([id, network])
+  @@index([projectId, network])
   @@map("marketplace_listings")
 }
 
