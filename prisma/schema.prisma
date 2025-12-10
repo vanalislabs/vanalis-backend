@@ -71,10 +71,10 @@ model EventLog {
 }
 
 enum ProjectStatus {
-  DRAFT
+  COMING_SOON
   OPEN
   COMPLETED
-  PUBLISHED
+  CLOSED
 }
 
 model Project {
@@ -97,6 +97,8 @@ model Project {
   createdAt              BigInt?       @map("created_at")
   deadline               BigInt?       @map("deadline")
   isDatasetZipped        Boolean       @default(false) @map("is_dataset_zipped")
+  isListed               Boolean       @default(false) @map("is_listed")
+  hasDataset             Boolean       @default(false) @map("has_dataset")
 
   submissions Submission[]
   listing     MarketplaceListing?

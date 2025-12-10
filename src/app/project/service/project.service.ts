@@ -50,9 +50,10 @@ export class ProjectService {
           queryProject.where!.status = ProjectStatus.OPEN;
           break;
         case ProjectStatus.COMPLETED:
-          queryProject.where!.status = {
-            in: [ProjectStatus.COMPLETED, ProjectStatus.PUBLISHED],
-          };
+          queryProject.where!.status = ProjectStatus.COMPLETED;
+          break;
+        case ProjectStatus.CLOSED:
+          queryProject.where!.status = ProjectStatus.CLOSED;
           break;
       }
     }
@@ -145,9 +146,10 @@ export class ProjectService {
           queryProject.where!.status = ProjectStatus.OPEN;
           break;
         case ProjectStatus.COMPLETED:
-          queryProject.where!.status = {
-            in: [ProjectStatus.COMPLETED, ProjectStatus.PUBLISHED],
-          };
+          queryProject.where!.status = ProjectStatus.COMPLETED;
+          break;
+        case ProjectStatus.CLOSED:
+          queryProject.where!.status = ProjectStatus.CLOSED;
           break;
       }
     }

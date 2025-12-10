@@ -11,5 +11,5 @@ export class MyProjectQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(['ALL', ProjectStatus.OPEN, ProjectStatus.COMPLETED])
-  status?: Exclude<ProjectStatus, 'DRAFT' | 'PUBLISHED'> | 'ALL';
+  status?: ProjectStatus | 'ALL';
 }

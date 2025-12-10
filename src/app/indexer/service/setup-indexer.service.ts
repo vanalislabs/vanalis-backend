@@ -60,11 +60,31 @@ export class SetupIndexerService {
     });
 
     this.eventsToTrack.push({
+      type: `${PACKAGE_ID}::project::ProjectClosedEvent`,
+      filter: {
+        MoveEventType: `${PACKAGE_ID}::project::ProjectClosedEvent`,
+      },
+      callback: this.projectIndexerService.handleProjectClosedEvent.bind(
+        this.projectIndexerService,
+      ),
+    });
+
+    this.eventsToTrack.push({
       type: `${PACKAGE_ID}::marketplace::ListingCreatedEvent`,
       filter: {
         MoveEventType: `${PACKAGE_ID}::marketplace::ListingCreatedEvent`,
       },
       callback: this.marketplaceIndexerService.handleListingCreatedEvent.bind(
+        this.marketplaceIndexerService,
+      ),
+    });
+
+    this.eventsToTrack.push({
+      type: `${PACKAGE_ID}::marketplace::ListingUpdatedEvent`,
+      filter: {
+        MoveEventType: `${PACKAGE_ID}::marketplace::ListingUpdatedEvent`,
+      },
+      callback: this.marketplaceIndexerService.handleListingUpdatedEvent.bind(
         this.marketplaceIndexerService,
       ),
     });

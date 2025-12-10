@@ -47,6 +47,29 @@ export class ProjectIndexerService {
     await this.indexerRepository.saveEventLog(event);
   }
 
+  async handleProjectClosedEvent(events: SuiEvent[], type: string) {
+    for (const event of events) {
+      try {
+        await this.handleSingleProjectClosedEvent(event);
+      } catch (error) {
+        this.logger.error(`Error handling project closed event: ${error}`);
+      }
+    }
+  }
+
+  async handleSingleProjectClosedEvent(event: SuiEvent) {
+    const parsedJson = event.parsedJson as any;
+
+    const project = await this.retrieveAndSaveProject(parsedJson.project_id);
+
+    // Save the created project activity
+    const id = `${event.id.txDigest}:${event.id.eventSeq}`;
+    await this.activityRepository.saveCreatedProjectActivity(id, project.id, event.sender, Number(event.timestampMs));
+
+    // Save the event to the database
+    await this.indexerRepository.saveEventLog(event);
+  }
+
   async handleSubmissionReceivedEvent(events: SuiEvent[], type: string) {
     for (const event of events) {
       try {
@@ -161,6 +184,8 @@ export class ProjectIndexerService {
       rejectedCount: Number(projectFields?.rejected_count),
       createdAt: Number(projectFields?.created_at),
       deadline: Number(projectFields?.deadline),
+      isListed: projectFields?.is_listed,
+      hasDataset: projectFields?.has_dataset,
     }
 
     const savedProject = await this.prisma.project.upsert({

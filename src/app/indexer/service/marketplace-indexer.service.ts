@@ -41,6 +41,29 @@ export class MarketplaceIndexerService {
     await this.indexerRepository.saveEventLog(event);
   }
 
+  async handleListingUpdatedEvent(events: SuiEvent[], type: string) {
+    for (const event of events) {
+      try {
+        await this.handleSingleListingUpdatedEvent(event);
+      } catch (error) {
+        this.logger.error(`Error handling listing updated event: ${error}`);
+      }
+    }
+  }
+
+  private async handleSingleListingUpdatedEvent(event: SuiEvent) {
+    const json = event.parsedJson as any;
+    const listing = await this.retrieveAndSaveListing(json.id);
+
+    if (listing) {
+      // Save the updated listing activity
+      const id = `${event.id.txDigest}:${event.id.eventSeq}`;
+      await this.activityRepository.saveUpdatedListingActivity(id, listing.projectId, listing.id, event.sender, Number(event.timestampMs));
+    }
+
+    await this.indexerRepository.saveEventLog(event);
+  }
+
   async handleListingPurchasedEvent(events: SuiEvent[], type: string) {
     for (const event of events) {
       try {
