@@ -69,11 +69,11 @@ export class SetupIndexerService {
     });
 
     this.eventsToTrack.push({
-      type: `${PACKAGE_ID}::marketplace::DatasetPurchasedEvent`,
+      type: `${PACKAGE_ID}::marketplace::ListingPurchasedEvent`,
       filter: {
-        MoveEventType: `${PACKAGE_ID}::marketplace::DatasetPurchasedEvent`,
+        MoveEventType: `${PACKAGE_ID}::marketplace::ListingPurchasedEvent`,
       },
-      callback: this.marketplaceIndexerService.handleDatasetPurchasedEvent.bind(
+      callback: this.marketplaceIndexerService.handleListingPurchasedEvent.bind(
         this.marketplaceIndexerService,
       ),
     });

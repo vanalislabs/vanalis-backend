@@ -3,6 +3,9 @@ import { SuiClient, SuiEvent } from '@mysten/sui/client';
 import { PrismaService } from 'src/shared/prisma/prisma.service';
 import { NETWORK } from 'src/constants/network.constants';
 import { IndexerRepository } from 'src/repositories/indexer.repository';
+import { ActivityRepository } from 'src/repositories/activity.repository';
+import { MarketplaceListing } from 'prisma/generated/client';
+import { ActivityToken } from 'src/app/activity/types/activity.type';
 
 @Injectable()
 export class MarketplaceIndexerService {
@@ -12,7 +15,8 @@ export class MarketplaceIndexerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly indexerRepository: IndexerRepository,
-  ) {}
+    private readonly activityRepository: ActivityRepository,
+  ) { }
 
   async handleListingCreatedEvent(events: SuiEvent[], type: string) {
     for (const event of events) {
@@ -26,30 +30,49 @@ export class MarketplaceIndexerService {
 
   private async handleSingleListingCreatedEvent(event: SuiEvent) {
     const json = event.parsedJson as any;
-    await this.retrieveAndSaveListing(json.id);
+    const listing = await this.retrieveAndSaveListing(json.id);
+
+    if (listing) {
+      // Save the created listing activity
+      const id = `${event.id.txDigest}:${event.id.eventSeq}`;
+      await this.activityRepository.saveCreatedListingActivity(id, listing.projectId, listing.id, event.sender, Number(event.timestampMs));
+    }
 
     await this.indexerRepository.saveEventLog(event);
   }
 
-  async handleDatasetPurchasedEvent(events: SuiEvent[], type: string) {
+  async handleListingPurchasedEvent(events: SuiEvent[], type: string) {
     for (const event of events) {
       try {
-        await this.handleSingleDatasetPurchasedEvent(event);
+        await this.handleSingleListingPurchasedEvent(event);
       } catch (error) {
-        this.logger.error(`Error handling dataset purchased event: ${error}`);
+        this.logger.error(`Error handling listing purchased event: ${error}`);
       }
     }
   }
 
-  private async handleSingleDatasetPurchasedEvent(event: SuiEvent) {
+  private async handleSingleListingPurchasedEvent(event: SuiEvent) {
     const json = event.parsedJson as any;
-    await this.upsertListingSaleFromEvent(json);
-    await this.retrieveAndSaveListing(json.listing_id);
+    const listingSale = await this.upsertListingSaleFromEvent(json);
+    const listing = await this.retrieveAndSaveListing(json.listing_id);
+
+    if (listing && listingSale) {
+      // Save the purchased listing activity
+      const id = `${event.id.txDigest}:${event.id.eventSeq}`;
+      const paidAmount: ActivityToken[] = [
+        {
+          amount: listingSale.paidAmount,
+          decimals: 9,
+          symbol: 'SUI',
+        },
+      ]
+      await this.activityRepository.savePurchasedListingActivity(id, listing.projectId, listing.id, paidAmount, listing.curator, event.sender, Number(event.timestampMs));
+    }
 
     await this.indexerRepository.saveEventLog(event);
   }
 
-  async retrieveAndSaveListing(listingId: string) {
+  async retrieveAndSaveListing(listingId: string): Promise<MarketplaceListing | null> {
     const listing = await this.client.getObject({
       id: listingId,
       options: { showContent: true },
@@ -60,7 +83,7 @@ export class MarketplaceIndexerService {
         ? listing?.data?.content?.fields
         : null;
 
-    if (!listingFields) return;
+    if (!listingFields) return null;
 
     const data = {
       projectId: listingFields.project_id,
