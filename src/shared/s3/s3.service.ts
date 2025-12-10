@@ -71,6 +71,22 @@ export class S3Service {
     return await getSignedUrl(this.s3 as any, command, { expiresIn });
   }
 
+  async getObjectStream(key: string): Promise<Readable> {
+    const command = new GetObjectCommand({
+      Bucket: this.config.s3.bucketName,
+      Key: key,
+    });
+
+    const response = await this.s3.send(command);
+    const bodyStream = response.Body as Readable | undefined;
+
+    if (!bodyStream) {
+      throw new Error(`S3 object stream is empty for key: ${key}`);
+    }
+
+    return bodyStream;
+  }
+
   async deleteFile(key: string): Promise<void> {
     const input: DeleteObjectCommandInput = {
       Bucket: this.config.s3.bucketName,

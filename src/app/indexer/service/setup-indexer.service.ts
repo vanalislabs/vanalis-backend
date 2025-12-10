@@ -10,6 +10,7 @@ import {
 import { ProjectIndexerService } from './project-indexer.service';
 import { ConfigService } from 'src/shared/config/config.service';
 import { type EventId, SuiClient } from '@mysten/sui/client';
+import { featureFlag } from 'src/commons/feature-flag.common';
 
 @Injectable()
 export class SetupIndexerService {
@@ -80,8 +81,10 @@ export class SetupIndexerService {
   }
 
   async onModuleInit() {
-    for (const event of this.eventsToTrack) {
-      this.runEventJob(this.client, event, await this.getLatestCursor(event));
+    if (!featureFlag('TURN_OFF_INDEXER')) {
+      for (const event of this.eventsToTrack) {
+        this.runEventJob(this.client, event, await this.getLatestCursor(event));
+      }
     }
   }
 
