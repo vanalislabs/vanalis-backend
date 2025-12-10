@@ -27,6 +27,22 @@ export class ActivityRepository {
     return savedActivity;
   }
 
+  async saveClosedProjectActivity(id: string, projectId: string, actor: string, timestamp: number | bigint) {
+    const metadata: ActivityMetadata = {
+      projectId,
+      curator: actor,
+    }
+    const data = {
+      actor,
+      action: ActivityAction.CLOSED_PROJECT,
+      metadata: metadata as unknown as InputJsonValue,
+      timestamp,
+    }
+    const savedActivity = await this.saveActivity(id, data);
+
+    return savedActivity;
+  }
+
   async saveSubmittedSubmissionActivity(id: string, projectId: string, submissionId: string, actor: string, timestamp: number | bigint) {
     const metadata: ActivityMetadata = {
       projectId,
@@ -90,6 +106,23 @@ export class ActivityRepository {
     const data = {
       actor,
       action: ActivityAction.CREATED_LISTING,
+      metadata: metadata as unknown as InputJsonValue,
+      timestamp,
+    }
+    const savedActivity = await this.saveActivity(id, data);
+
+    return savedActivity;
+  }
+
+  async saveUpdatedListingActivity(id: string, projectId: string, listingId: string, actor: string, timestamp: number | bigint) {
+    const metadata: ActivityMetadata = {
+      projectId,
+      listingId,
+      curator: actor,
+    }
+    const data = {
+      actor,
+      action: ActivityAction.UPDATED_LISTING,
       metadata: metadata as unknown as InputJsonValue,
       timestamp,
     }

@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "ProjectStatus" AS ENUM ('DRAFT', 'OPEN', 'COMPLETED', 'PUBLISHED');
+CREATE TYPE "ProjectStatus" AS ENUM ('COMING_SOON', 'OPEN', 'COMPLETED', 'CLOSED');
 
 -- CreateEnum
 CREATE TYPE "SubmissionStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');

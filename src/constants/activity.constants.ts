@@ -3,7 +3,9 @@ export const ActivityAction = {
   SUBMIT_SUBMISSION: 'SUBMIT_SUBMISSION',
   REVIEWED_SUBMISSION: 'REVIEWED_SUBMISSION',
   EARN_SUBMISSION_REWARD: 'EARN_SUBMISSION_REWARD',
+  CLOSED_PROJECT: 'CLOSED_PROJECT',
   CREATED_LISTING: 'CREATED_LISTING',
+  UPDATED_LISTING: 'UPDATED_LISTING',
   PURCHASED_LISTING: 'PURCHASED_LISTING',
 } as const
 
@@ -14,7 +16,9 @@ export const ActivityLabel = {
   [ActivityAction.SUBMIT_SUBMISSION]: 'submitted submission to',
   [ActivityAction.REVIEWED_SUBMISSION]: 'reviewed',
   [ActivityAction.EARN_SUBMISSION_REWARD]: 'earned reward from',
+  [ActivityAction.CLOSED_PROJECT]: 'closed',
   [ActivityAction.CREATED_LISTING]: 'listed',
+  [ActivityAction.UPDATED_LISTING]: 'updated',
   [ActivityAction.PURCHASED_LISTING]: 'purchased',
 } as const
 
@@ -25,7 +29,9 @@ export const ActivityLabelDescription = {
   [ActivityAction.SUBMIT_SUBMISSION]: "{projectName}'s project",
   [ActivityAction.REVIEWED_SUBMISSION]: "{contributorName}'s submission on {projectName}",
   [ActivityAction.EARN_SUBMISSION_REWARD]: "{projectName}'s project submission",
+  [ActivityAction.CLOSED_PROJECT]: "{projectName}'s project",
   [ActivityAction.CREATED_LISTING]: "{projectName} to marketplace",
+  [ActivityAction.UPDATED_LISTING]: "{projectName}'s listing",
   [ActivityAction.PURCHASED_LISTING]: "{projectName} from marketplace",
 } as const
 

@@ -15,7 +15,7 @@ export class BrowseProjectQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   @IsIn(['ALL', ProjectStatus.OPEN, ProjectStatus.COMPLETED])
-  status?: Exclude<ProjectStatus, 'DRAFT' | 'PUBLISHED'> | 'ALL';
+  status?: ProjectStatus | 'ALL';
 
   @ApiPropertyOptional({
     enum: ['createdAt', 'title', 'deadline', 'totalRewardPool', 'submissionsCount'],

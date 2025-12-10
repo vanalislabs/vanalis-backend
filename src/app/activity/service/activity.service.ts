@@ -4,7 +4,6 @@ import { PrismaService } from "src/shared/prisma/prisma.service";
 import { ActivityFeedQueryDto } from "../dto/activity-feed-query.dto";
 import { ActivityByProjectQueryDto } from "../dto/activity-by-project-query.dto";
 import { MyActivitiesQueryDto } from "../dto/my-activities-query.dto";
-import { ActivityRepository } from "src/repositories/activity.repository";
 import { PaginateFunction } from "src/commons/paginator.common";
 import { paginator } from "src/commons/paginator.common";
 import { ActivityMetadata } from "../types/activity.type";
@@ -16,7 +15,6 @@ const paginate: PaginateFunction = paginator({ perPage: 10 });
 export class ActivityService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly activityRepository: ActivityRepository
   ) { }
 
   async getActivityFeed(query: ActivityFeedQueryDto) {
@@ -174,6 +172,10 @@ export class ActivityService {
         activityLabel = ActivityLabel.CREATED_PROJECT;
         activityLabelDescription = ActivityLabelDescription.CREATED_PROJECT.replace('{projectName}', projectName);
         break;
+      case ActivityAction.CLOSED_PROJECT:
+        activityLabel = ActivityLabel.CLOSED_PROJECT;
+        activityLabelDescription = ActivityLabelDescription.CLOSED_PROJECT.replace('{projectName}', projectName);
+        break;
       case ActivityAction.SUBMIT_SUBMISSION:
         activityLabel = ActivityLabel.SUBMIT_SUBMISSION;
         activityLabelDescription = ActivityLabelDescription.SUBMIT_SUBMISSION.replace('{projectName}', projectName);
@@ -192,6 +194,10 @@ export class ActivityService {
       case ActivityAction.CREATED_LISTING:
         activityLabel = ActivityLabel.CREATED_LISTING;
         activityLabelDescription = ActivityLabelDescription.CREATED_LISTING.replace('{projectName}', projectName);
+        break;
+      case ActivityAction.UPDATED_LISTING:
+        activityLabel = ActivityLabel.UPDATED_LISTING;
+        activityLabelDescription = ActivityLabelDescription.UPDATED_LISTING.replace('{projectName}', projectName);
         break;
       case ActivityAction.PURCHASED_LISTING:
         activityLabel = ActivityLabel.PURCHASED_LISTING;
