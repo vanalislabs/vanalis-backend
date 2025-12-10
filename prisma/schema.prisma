@@ -207,3 +207,15 @@ model MediaFile {
 
   @@map("media_files")
 }
+
+model Activity {
+  id        String
+  network   String
+  actor     String
+  action    String
+  metadata  Json?
+  timestamp BigInt?
+
+  @@unique([id, network])
+  @@map("activities")
+}

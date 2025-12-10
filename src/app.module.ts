@@ -14,6 +14,7 @@ import { ProjectModule } from './app/project/project.module';
 import { UploadModule } from './app/upload/upload.module';
 import { StorageModule } from './app/storage/storage.module';
 import { MarketplaceModule } from './app/marketplace/marketplace.module';
+import { ActivityModule } from './app/activity/activity.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { MarketplaceModule } from './app/marketplace/marketplace.module';
     UploadModule,
     StorageModule,
     MarketplaceModule,
+    ActivityModule,
     IndexerModule,
   ],
   controllers: [AppController],

@@ -1,9 +1,11 @@
 import { SuiClient, SuiEvent } from "@mysten/sui/client";
 import { Injectable, Logger } from "@nestjs/common";
-import { Prisma, Project, Submission, SubmissionStatus } from "prisma/generated/client";
+import { Project, Submission, SubmissionStatus } from "prisma/generated/client";
+import { ActivityToken } from "src/app/activity/types/activity.type";
 import { NETWORK } from "src/constants/network.constants";
 import { PROJECT_STATUS_FROM_NUMBER } from "src/constants/project.constants";
 import { SUBMISSION_STATUS_FROM_NUMBER } from "src/constants/submission.constants";
+import { ActivityRepository } from "src/repositories/activity.repository";
 import { IndexerRepository } from "src/repositories/indexer.repository";
 import { PrismaService } from "src/shared/prisma/prisma.service";
 
@@ -15,6 +17,7 @@ export class ProjectIndexerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly indexerRepository: IndexerRepository,
+    private readonly activityRepository: ActivityRepository,
   ) {
     this.client = new SuiClient({
       url: NETWORK?.rpcUrl || '',
@@ -34,7 +37,11 @@ export class ProjectIndexerService {
   async handleSingleProjectCreatedEvent(event: SuiEvent) {
     const parsedJson = event.parsedJson as any;
 
-    await this.retrieveAndSaveProject(parsedJson.project_id);
+    const project = await this.retrieveAndSaveProject(parsedJson.project_id);
+
+    // Save the created project activity
+    const id = `${event.id.txDigest}:${event.id.eventSeq}`;
+    await this.activityRepository.saveCreatedProjectActivity(id, project.id, event.sender, Number(event.timestampMs));
 
     // Save the event to the database
     await this.indexerRepository.saveEventLog(event);
@@ -53,9 +60,13 @@ export class ProjectIndexerService {
   async handleSingleSubmissionReceivedEvent(event: SuiEvent) {
     const parsedJson = event.parsedJson as any;
 
-    await this.retrieveAndSaveProject(parsedJson.project_id);
+    const project = await this.retrieveAndSaveProject(parsedJson.project_id);
 
-    await this.retrieveAndSaveSubmission(parsedJson.submission_id);
+    const submission = await this.retrieveAndSaveSubmission(parsedJson.submission_id);
+
+    // Save the submitted submission activity
+    const id = `${event.id.txDigest}:${event.id.eventSeq}`;
+    await this.activityRepository.saveSubmittedSubmissionActivity(id, project.id, submission.id, event.sender, Number(event.timestampMs));
 
     // Save the event to the database
     await this.indexerRepository.saveEventLog(event);
@@ -103,6 +114,21 @@ export class ProjectIndexerService {
         })
       }
     }
+
+    // Save the reviewed submission activity
+    const idReviewed = `${event.id.txDigest}:${event.id.eventSeq}`;
+    await this.activityRepository.saveReviewedSubmissionActivity(idReviewed, project.id, submission.id, submission.contributor, event.sender, Number(event.timestampMs));
+
+    // Save the earned submission reward activity
+    const idEarnedReward = `${event.id.txDigest}:${event.id.eventSeq}`;
+    const rewards: ActivityToken[] = [
+      {
+        amount: submission.rewardPaid,
+        decimals: 9,
+        symbol: 'SUI',
+      },
+    ]
+    await this.activityRepository.saveEarnedSubmissionRewardActivity(idEarnedReward, project.id, submission.id, rewards, event.sender, submission.contributor, Number(event.timestampMs));
 
     // Save the event to the database
     await this.indexerRepository.saveEventLog(event);
