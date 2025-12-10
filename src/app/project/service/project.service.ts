@@ -57,6 +57,25 @@ export class ProjectService {
       }
     }
 
+    if (query.search) {
+      queryProject.where = {
+        ...queryProject.where,
+        title: {
+          search: query.search,
+        },
+      }
+    }
+
+    if (query.sortBy) {
+      queryProject.orderBy = {
+        [query.sortBy as any]: query.sortOrder || 'desc',
+      }
+    } else {
+      queryProject.orderBy = {
+        createdAt: 'desc',
+      };
+    }
+
     const projects = await paginate(
       this.prisma.project,
       queryProject,

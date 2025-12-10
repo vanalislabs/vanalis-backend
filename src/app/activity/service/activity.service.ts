@@ -20,15 +20,23 @@ export class ActivityService {
   ) { }
 
   async getActivityFeed(query: ActivityFeedQueryDto) {
-    const orderBy = await this.activityRepository.generateActivityFeedOrderBy(query?.orderBy);
     const queryActivity: Prisma.ActivityFindManyArgs = {
       where: {},
-      orderBy,
     };
 
     if (query?.action) {
       queryActivity.where = {
         action: query.action,
+      };
+    }
+
+    if (query?.sortBy) {
+      queryActivity.orderBy = {
+        [query.sortBy as any]: query.sortOrder || 'desc',
+      }
+    } else {
+      queryActivity.orderBy = {
+        timestamp: 'desc',
       };
     }
 
@@ -47,7 +55,6 @@ export class ActivityService {
   }
 
   async getActivityFeedByProject(projectId: string, query: ActivityByProjectQueryDto) {
-    const orderBy = await this.activityRepository.generateActivityFeedOrderBy(query?.orderBy);
     const queryActivity: Prisma.ActivityFindManyArgs = {
       where: {
         metadata: {
@@ -55,8 +62,17 @@ export class ActivityService {
           equals: [projectId],
         },
       },
-      orderBy,
     };
+
+    if (query?.sortBy) {
+      queryActivity.orderBy = {
+        [query.sortBy as any]: query.sortOrder || 'desc',
+      }
+    } else {
+      queryActivity.orderBy = {
+        timestamp: 'desc',
+      };
+    }
 
     const activities = await paginate(
       this.prisma.activity,
@@ -73,18 +89,26 @@ export class ActivityService {
   }
 
   async getMyActivities(query: MyActivitiesQueryDto, user: User) {
-    const orderBy = await this.activityRepository.generateActivityFeedOrderBy(query?.orderBy);
     const queryActivity: Prisma.ActivityFindManyArgs = {
       where: {
         actor: user.address,
       },
-      orderBy,
     };
 
     if (query?.action) {
       queryActivity.where = {
         ...queryActivity.where,
         action: query.action,
+      };
+    }
+
+    if (query?.sortBy) {
+      queryActivity.orderBy = {
+        [query.sortBy as any]: query.sortOrder || 'desc',
+      }
+    } else {
+      queryActivity.orderBy = {
+        timestamp: 'desc',
       };
     }
 

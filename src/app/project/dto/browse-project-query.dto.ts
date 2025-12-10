@@ -16,4 +16,20 @@ export class BrowseProjectQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsIn(['ALL', ProjectStatus.OPEN, ProjectStatus.COMPLETED])
   status?: Exclude<ProjectStatus, 'DRAFT' | 'PUBLISHED'> | 'ALL';
+
+  @ApiPropertyOptional({
+    enum: ['createdAt', 'title', 'deadline', 'totalRewardPool', 'submissionsCount'],
+    description: 'Field to sort by',
+  })
+  @IsOptional()
+  @IsIn(['createdAt', 'title', 'deadline', 'totalRewardPool', 'submissionsCount'])
+  sortBy?: 'createdAt' | 'title' | 'deadline' | 'totalRewardPool' | 'submissionsCount';
+
+  @ApiPropertyOptional({
+    enum: ['asc', 'desc'],
+    description: 'Sort direction',
+  })
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc';
 }

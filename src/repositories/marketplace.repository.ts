@@ -96,8 +96,18 @@ export class MarketplaceRepository {
   async browseListings(filters: BrowseMarketplaceQueryDto) {
     const where: any = {};
 
+    if (filters?.search) {
+      where.project = {
+        ...where.project,
+        title: {
+          search: filters.search,
+        },
+      };
+    }
+
     if (filters?.category) {
       where.project = {
+        ...where.project,
         category: filters.category,
       };
     }
