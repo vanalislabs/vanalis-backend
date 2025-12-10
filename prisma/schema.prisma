@@ -96,6 +96,7 @@ model Project {
   rejectedCount          BigInt        @map("rejected_count")
   createdAt              BigInt?       @map("created_at")
   deadline               BigInt?       @map("deadline")
+  isDatasetZipped        Boolean       @default(false) @map("is_dataset_zipped")
 
   submissions Submission[]
   listing     MarketplaceListing?
