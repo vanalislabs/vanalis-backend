@@ -30,10 +30,3 @@ export const ActivityLabelDescription = {
 } as const
 
 export type ActivityLabelDescription = (typeof ActivityLabelDescription)[keyof typeof ActivityLabelDescription]
-
-export const ActivityFeedOrderBy = {
-  newest: 'newest',
-  oldest: 'oldest',
-} as const
-
-export type ActivityFeedOrderBy = (typeof ActivityFeedOrderBy)[keyof typeof ActivityFeedOrderBy]

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Activity, Prisma } from "prisma/generated/client";
 import { InputJsonValue } from "prisma/generated/internal/prismaNamespace";
 import { ActivityMetadata, ActivityToken } from "src/app/activity/types/activity.type";
-import { ActivityAction, ActivityFeedOrderBy } from "src/constants/activity.constants";
+import { ActivityAction } from "src/constants/activity.constants";
 import { NETWORK } from "src/constants/network.constants";
 import { PrismaService } from "src/shared/prisma/prisma.service";
 
@@ -132,19 +132,5 @@ export class ActivityRepository {
         actor: data.actor as string,
       },
     });
-  }
-
-  async generateActivityFeedOrderBy(orderBy?: ActivityFeedOrderBy): Promise<Prisma.ActivityOrderByWithRelationInput | undefined> {
-    if (!orderBy) {
-      return undefined;
-    }
-    switch (orderBy) {
-      case ActivityFeedOrderBy.newest:
-        return { timestamp: 'desc' };
-      case ActivityFeedOrderBy.oldest:
-        return { timestamp: 'asc' };
-      default:
-        return undefined;
-    }
   }
 }

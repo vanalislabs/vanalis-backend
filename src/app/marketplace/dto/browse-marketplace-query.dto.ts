@@ -6,6 +6,11 @@ export class BrowseMarketplaceQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  search?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   category?: string;
 
   @ApiPropertyOptional({
