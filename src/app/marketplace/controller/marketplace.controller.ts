@@ -28,16 +28,6 @@ export class MarketplaceController {
     return this.marketplaceService.browseListings(query);
   }
 
-  @Get('listings')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({
-    description: "Successfully retrieved marketplace listings!",
-  })
-  @ResponseMessage("Successfully retrieved marketplace listings!")
-  async getListings() {
-    return this.marketplaceService.getActiveListings();
-  }
-
   @Get('listing/:id')
   @ApiOkResponse({
     description: "Successfully retrieved listing details!",
