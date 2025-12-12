@@ -15,6 +15,7 @@ import { UploadModule } from './app/upload/upload.module';
 import { StorageModule } from './app/storage/storage.module';
 import { MarketplaceModule } from './app/marketplace/marketplace.module';
 import { ActivityModule } from './app/activity/activity.module';
+import { UserModule } from './app/user/user.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ActivityModule } from './app/activity/activity.module';
     }),
     RepositoryModule,
     AuthModule,
+    UserModule,
     SearchModule,
     KeypairModule,
     ProjectModule,
