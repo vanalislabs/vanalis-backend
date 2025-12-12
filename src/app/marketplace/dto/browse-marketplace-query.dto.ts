@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from 'src/commons/dto/pagination-query.dto';
 
 export class BrowseMarketplaceQueryDto extends PaginationQueryDto {
@@ -12,6 +12,11 @@ export class BrowseMarketplaceQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  isAvailable?: boolean;
 
   @ApiPropertyOptional({
     description: 'Minimum price (in base units)',
